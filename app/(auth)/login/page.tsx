@@ -50,7 +50,7 @@ export default function LoginPage() {
     const [carregando, setCarregando] = useState(false);
     const [erroEmail, setErroEmail] = useState('');
     const [erroSenha, setErroSenha] = useState('');
-    const [toast, setToast] = useState({ visivel: false, mensagem: '', tipo: 'erro' as const });
+    const [toast, setToast] = useState<{ visivel: boolean; mensagem: string; tipo: 'sucesso' | 'erro' | 'aviso' }>({ visivel: false, mensagem: '', tipo: 'erro' });
 
     // Valida domínio em tempo real ao digitar
     function handleEmailChange(valor: string) {
