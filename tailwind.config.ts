@@ -12,11 +12,11 @@ const config: Config = {
             colors: {
                 // ── Paleta oficial Grupo Protege (extraída do logo SVG) ──
                 brand: {
-                    50: '#e6eff5',
-                    100: '#c2d7e7',
-                    200: '#8fb6cf',
-                    300: '#5a93b7',
-                    400: '#2d76a3',
+                    50: '#f0f4f8',
+                    100: '#d9e2ec',
+                    200: '#bcccdc',
+                    300: '#9fb3c8',
+                    400: '#829ab1',
                     500: '#043154',  // Azul marinho Protege (logo .cls-3)
                     600: '#032b49',
                     700: '#02203a',
@@ -58,13 +58,14 @@ const config: Config = {
                 mono: ['JetBrains Mono', 'Fira Code', 'monospace'],
             },
             animation: {
-                'fade-in': 'fadeIn 0.5s ease-in-out',
-                'slide-up': 'slideUp 0.4s ease-out',
-                'slide-in-right': 'slideInRight 0.4s ease-out',
-                'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-                'shimmer': 'shimmer 2s linear infinite',
+                'fade-in': 'fadeIn 0.6s cubic-bezier(0.22, 1, 0.36, 1)',
+                'slide-up': 'slideUp 0.5s cubic-bezier(0.22, 1, 0.36, 1)',
+                'slide-in-right': 'slideInRight 0.5s cubic-bezier(0.22, 1, 0.36, 1)',
+                'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                'shimmer': 'shimmer 2.5s linear infinite',
                 'float': 'float 6s ease-in-out infinite',
                 'glow': 'glow 2s ease-in-out infinite alternate',
+                'spring-in': 'springIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
             },
             keyframes: {
                 fadeIn: {
@@ -91,6 +92,15 @@ const config: Config = {
                     '0%': { boxShadow: '0 0 20px rgba(40, 116, 239, 0.3)' },
                     '100%': { boxShadow: '0 0 40px rgba(40, 116, 239, 0.6)' },
                 },
+                springIn: {
+                    '0%': { transform: 'scale(0.9) translateY(10px)', opacity: '0' },
+                    '100%': { transform: 'scale(1) translateY(0)', opacity: '1' },
+                },
+            },
+            boxShadow: {
+                'premium': '0 10px 30px -10px rgba(0, 0, 0, 0.3), 0 0 1px 1px rgba(255, 255, 255, 0.05)',
+                'inner-glow': 'inset 0 1px 1px 0 rgba(255, 255, 255, 0.05)',
+                'gold-glow': '0 0 15px rgba(232, 195, 122, 0.15)',
             },
             backgroundImage: {
                 'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',

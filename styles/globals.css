@@ -15,30 +15,30 @@
   /* Brand Colors - Protege */
   --brand-navy: #043154;
   --brand-gold: #95793c;
-  --brand-blue-accent: #2874ef;
+  --brand-blue-accent: #2d6095;
 
   /* Semantic - Light Mode (Default) */
-  --background: #f8fafc;
-  --foreground: #0f172a;
+  --background: #fdfdfd;
+  --foreground: #04101a;
   --card: #ffffff;
-  --card-foreground: #0f172a;
-  --border: rgba(15, 23, 42, 0.08);
-  --muted: #64748b;
-  --accent: #2874ef;
+  --card-foreground: #04101a;
+  --border: rgba(4, 49, 84, 0.08);
+  --muted: #627685;
+  --accent: #2d6095;
   --accent-foreground: #ffffff;
 
-  --radius: 16px;
+  --radius: 18px;
 }
 
 .dark {
   /* Semantic - Dark Mode */
-  --background: #080d1a;
+  --background: #02060a;
   --foreground: #f0f4ff;
-  --card: rgba(255, 255, 255, 0.03);
+  --card: rgba(255, 255, 255, 0.02);
   --card-foreground: #f0f4ff;
-  --border: rgba(255, 255, 255, 0.08);
-  --muted: #94a3b8;
-  --accent: #2874ef;
+  --border: rgba(255, 255, 255, 0.06);
+  --muted: #829ab1;
+  --accent: #4e7fb0;
   --accent-foreground: #ffffff;
 }
 

@@ -25,10 +25,10 @@ const AnimatedInput = forwardRef<HTMLInputElement, AnimatedInputProps>(
         const inputId = id || label.toLowerCase().replace(/\s+/g, '-');
 
         const borderColor = erro
-            ? 'border-red-500/60 focus-within:border-red-500'
+            ? 'border-red-500/40 focus-within:border-red-500'
             : sucesso
-                ? 'border-green-500/60 focus-within:border-green-500'
-                : 'border-border focus-within:border-brand-500/70';
+                ? 'border-green-500/40 focus-within:border-green-500'
+                : 'border-border/60 focus-within:border-brand-500/50';
 
         const glowColor = erro
             ? 'focus-within:shadow-red-500/10'
@@ -41,10 +41,11 @@ const AnimatedInput = forwardRef<HTMLInputElement, AnimatedInputProps>(
                 {/* Container do input */}
                 <div
                     className={clsx(
-                        'relative rounded-xl border bg-foreground/4 transition-all duration-300',
-                        'focus-within:shadow-lg',
+                        'relative rounded-xl border bg-foreground/[0.02] transition-all duration-500',
+                        'focus-within:shadow-premium focus-within:bg-foreground/[0.04]',
                         borderColor,
                         glowColor,
+                        'shadow-inner-glow'
                     )}
                 >
                     {/* Label flutuante */}
@@ -55,7 +56,7 @@ const AnimatedInput = forwardRef<HTMLInputElement, AnimatedInputProps>(
                             translateY: labelAtivo ? '0%' : '-50%',
                             fontSize: labelAtivo ? '11px' : '14px',
                             color: focado
-                                ? erro ? '#ef4444' : '#2d76a3'
+                                ? erro ? '#ef4444' : 'var(--accent)'
                                 : erro
                                     ? '#ef4444'
                                     : 'var(--muted)',

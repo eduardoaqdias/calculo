@@ -113,31 +113,43 @@ export default function DashboardPage() {
                 variants={containerVar}
                 initial="hidden"
                 animate="visible"
-                className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 mb-8"
+                className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-5 mb-10"
             >
                 {kpis.map((kpi) => (
                     <motion.div
                         key={kpi.label}
                         variants={itemVar}
-                        whileHover={{ y: -4, transition: { duration: 0.2 } }}
-                        className="relative rounded-2xl border border-border bg-card shadow-sm dark:shadow-none p-4 md:p-6 overflow-hidden transition-all hover:shadow-md dark:hover:bg-foreground/5"
+                        whileHover={{ y: -5, transition: { duration: 0.2 } }}
+                        className="group relative rounded-2xl border border-border/60 bg-card shadow-sm hover:shadow-premium p-5 md:p-6 overflow-hidden transition-all duration-300"
                     >
-                        {/* Ícone */}
-                        <div className={`inline-flex p-3 rounded-xl border mb-4 ${corKpi[kpi.cor]}`}>
-                            <kpi.icone size={20} />
+                        {/* Shimmer Effect on Hover */}
+                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.03] to-transparent -translate-x-full group-hover:animate-shimmer" />
+
+                        <div className="relative z-10">
+                            {/* Ícone */}
+                            <div className={`inline-flex p-3 rounded-xl border shadow-inner-glow mb-5 ${corKpi[kpi.cor]}`}>
+                                <kpi.icone size={20} />
+                            </div>
+
+                            {/* Valor */}
+                            <div className="text-2xl md:text-4xl font-black text-foreground tracking-tighter mb-1.5">{kpi.valor}</div>
+                            <div className="text-[10px] md:text-xs text-muted font-black uppercase tracking-widest mb-3 opacity-60">{kpi.label}</div>
+
+                            <div className="flex items-center gap-1.5">
+                                <div className={`px-2 py-0.5 rounded-md text-[10px] font-black tracking-tight ${kpi.positivo
+                                        ? 'bg-green-500/10 text-green-600 dark:text-green-400 border border-green-500/20'
+                                        : 'bg-red-500/10 text-red-600 dark:text-red-400 border border-red-500/20'
+                                    }`}>
+                                    {kpi.variacao}
+                                </div>
+                                <span className="text-[10px] text-muted font-medium opacity-50 uppercase tracking-tighter">Últimos 30 dias</span>
+                            </div>
                         </div>
 
-                        {/* Valor */}
-                        <div className="text-2xl md:text-3xl font-bold text-foreground mb-1">{kpi.valor}</div>
-                        <div className="text-xs md:text-sm text-muted mb-2 font-medium">{kpi.label}</div>
-                        <div className={`text-xs font-bold px-2 py-0.5 rounded-full inline-block ${kpi.positivo ? 'bg-green-500/10 text-green-600 dark:text-green-400' : 'bg-red-500/10 text-red-600 dark:text-red-400'}`}>
-                            {kpi.variacao}
-                        </div>
-
-                        {/* Glow sutil de fundo */}
-                        <div className={`absolute -right-4 -bottom-4 w-24 h-24 rounded-full opacity-[0.03] dark:opacity-[0.05] ${kpi.cor === 'brand' ? 'bg-brand-500' :
-                            kpi.cor === 'purple' ? 'bg-purple-500' :
-                                kpi.cor === 'green' ? 'bg-green-500' : 'bg-orange-500'
+                        {/* Glow sutil de fundo ajustado */}
+                        <div className={`absolute -right-6 -bottom-6 w-32 h-32 rounded-full blur-[40px] opacity-[0.05] dark:opacity-[0.08] pointer-events-none transition-opacity duration-500 group-hover:opacity-[0.12] ${kpi.cor === 'brand' ? 'bg-brand-500' :
+                                kpi.cor === 'purple' ? 'bg-purple-500' :
+                                    kpi.cor === 'green' ? 'bg-green-500' : 'bg-orange-500'
                             }`} />
                     </motion.div>
                 ))}
@@ -152,40 +164,47 @@ export default function DashboardPage() {
                     transition={{ delay: 0.3 }}
                     className="md:col-span-2"
                 >
-                    <div className="rounded-2xl border border-border bg-card shadow-sm dark:shadow-none p-6 md:p-8 h-full flex flex-col">
-                        <div className="flex items-center justify-between mb-6">
+                    <div className="group relative rounded-3xl border border-border/60 bg-card shadow-sm hover:shadow-premium p-8 md:p-10 h-full flex flex-col overflow-hidden transition-all duration-300">
+                        {/* Decorativa */}
+                        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-brand-500/50 via-brand-400/20 to-transparent opacity-40" />
+
+                        <div className="flex items-center justify-between mb-8">
                             <div>
-                                <h2 className="text-lg md:text-xl font-bold text-foreground">Simulador CPE</h2>
-                                <p className="text-sm text-muted mt-1 font-medium">Calcule custos e gere orçamentos</p>
+                                <h2 className="text-xl md:text-2xl font-black text-foreground tracking-tight uppercase">Simulador CPE</h2>
+                                <p className="text-sm text-muted mt-1 font-semibold uppercase tracking-wider opacity-60">Centro de Comando e Orçamentos</p>
                             </div>
-                            <span className="text-xs px-3 py-1 rounded-full bg-green-500/10 border border-green-500/20 text-green-600 dark:text-green-400 font-bold">
-                                Ativo
-                            </span>
+                            <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-green-500/10 border border-green-500/20">
+                                <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse shadow-[0_0_8px_rgba(34,197,94,0.6)]" />
+                                <span className="text-[10px] text-green-600 dark:text-green-400 font-black uppercase tracking-widest">Sistemas Operacionais</span>
+                            </div>
                         </div>
 
-                        <div className="space-y-4 mb-8 flex-1">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-5 gap-x-8 mb-10 flex-1">
                             {[
-                                'Seleção em cascata por Cidade, Base, UF e Rota',
-                                'Cálculo automático de impostos (ISS, PIS/COFINS, ICMS)',
-                                'Exportação de orçamento via e-mail',
-                                'Suporte a margem de lucro configurável',
+                                'Seleção inteligente de rotas em tempo real',
+                                'Cálculo de impostos conforme legislação vigente',
+                                'Exportação direta para PDF e E-mail',
+                                'Configuração de margens e lucro líquido',
                             ].map((f, i) => (
-                                <div key={i} className="flex items-start gap-3">
-                                    <CheckCircle size={16} className="text-brand-500 dark:text-brand-400 flex-shrink-0 mt-0.5" />
-                                    <span className="text-sm md:text-base text-muted font-medium">{f}</span>
+                                <div key={i} className="flex items-start gap-4 group/item">
+                                    <div className="w-6 h-6 rounded-lg bg-brand-500/5 border border-brand-500/10 flex items-center justify-center flex-shrink-0 transition-colors group-hover/item:border-brand-500/30">
+                                        <CheckCircle size={14} className="text-brand-500 dark:text-brand-400 shadow-sm" />
+                                    </div>
+                                    <span className="text-sm md:text-base text-muted font-bold tracking-tight opacity-80">{f}</span>
                                 </div>
                             ))}
                         </div>
 
                         <Link href="/simulador">
                             <motion.div
-                                whileHover={{ scale: 1.01 }}
+                                whileHover={{ scale: 1.01, y: -2 }}
                                 whileTap={{ scale: 0.99 }}
-                                className="flex items-center justify-center gap-3 w-full py-4 rounded-xl bg-brand-500 hover:bg-brand-600 text-white text-base font-bold transition-all cursor-pointer shadow-lg shadow-brand-500/25 dark:shadow-none"
+                                className="relative group/btn flex items-center justify-center gap-4 w-full py-5 rounded-2xl bg-brand-500 hover:bg-brand-600 text-white text-lg font-black transition-all cursor-pointer shadow-xl shadow-brand-500/20 overflow-hidden"
                             >
-                                <Calculator size={20} />
-                                Abrir Simulador
-                                <ArrowUpRight size={18} />
+                                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.08] to-transparent -translate-x-full group-hover/btn:animate-shimmer" />
+                                <Calculator size={22} className="relative z-10" />
+                                <span className="relative z-10">INICIAR NOVA SIMULAÇÃO</span>
+                                <ArrowUpRight size={20} className="relative z-10 opacity-70 transition-transform group-hover/btn:translate-x-1 group-hover/btn:-translate-y-1" />
                             </motion.div>
                         </Link>
                     </div>

@@ -70,46 +70,57 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             <motion.aside
                 initial={{ x: -80, opacity: 0 }}
                 animate={{ x: 0, opacity: 1 }}
-                transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-                className="hidden md:flex flex-col w-64 border-r border-border bg-card/50 backdrop-blur-xl"
+                transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                className="hidden md:flex flex-col w-64 border-r border-border bg-card/40 backdrop-blur-2xl shadow-premium z-40"
             >
                 {/* Logo */}
-                <div className="p-6 border-b border-border">
-                    <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-lg bg-brand-500/10 border border-brand-500/20 flex items-center justify-center flex-shrink-0">
-                            {/* eslint-disable-next-line @next/next/no-img-element */}
-                            <img
-                                src="https://www.protege.com.br/media/ovmn4be5/main-logo.svg"
-                                alt="Protege"
-                                className="h-4 w-auto dark:filter dark:brightness-0 dark:invert transition-all"
+                <div className="p-8 pb-6">
+                    <div className="flex items-center gap-3.5 group">
+                        <div className="relative">
+                            <motion.div
+                                animate={{ scale: [1, 1.05, 1], opacity: [0.3, 0.5, 0.3] }}
+                                transition={{ duration: 4, repeat: Infinity }}
+                                className="absolute -inset-2 rounded-xl bg-brand-500/10 blur-lg"
                             />
+                            <div className="relative w-10 h-10 rounded-xl bg-brand-500/10 border border-brand-500/20 flex items-center justify-center flex-shrink-0 shadow-inner-glow transition-transform group-hover:scale-105">
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                <img
+                                    src="https://www.protege.com.br/media/ovmn4be5/main-logo.svg"
+                                    alt="Protege"
+                                    className="h-5 w-auto dark:filter dark:brightness-0 dark:invert transition-all"
+                                />
+                            </div>
                         </div>
-                        <div>
-                            <p className="text-sm font-bold">Protege</p>
-                            <p className="text-xs text-muted">Plataforma Corporativa</p>
+                        <div className="min-w-0">
+                            <p className="text-sm font-bold tracking-tight text-foreground/90 leading-tight">PROTEGE</p>
+                            <p className="text-[10px] text-muted font-bold uppercase tracking-widest mt-0.5 opacity-60">PLATAFORMA</p>
                         </div>
                     </div>
                 </div>
 
                 {/* Navegação */}
-                <nav className="flex-1 p-4 space-y-1">
+                <nav className="flex-1 p-5 space-y-1.5">
+                    <p className="px-3 text-[10px] font-bold text-muted uppercase tracking-[0.2em] mb-4 opacity-40">Menu Principal</p>
                     {navItems.map(item => {
                         const ativo = pathname === item.href || pathname?.startsWith(item.href + '/');
                         return (
                             <Link key={item.href} href={item.href}>
                                 <motion.div
-                                    whileHover={{ x: 3 }}
+                                    whileHover={{ x: 4 }}
                                     whileTap={{ scale: 0.98 }}
-                                    className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 cursor-pointer ${ativo
-                                        ? 'bg-brand-500/10 text-brand-500 dark:text-brand-400 border border-brand-500/20'
-                                        : 'text-muted hover:text-foreground hover:bg-foreground/5'
+                                    className={`relative flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all duration-300 cursor-pointer overflow-hidden ${ativo
+                                        ? 'text-brand-500 dark:text-brand-400 bg-brand-500/5 shadow-inner-glow border border-brand-500/10'
+                                        : 'text-muted/80 hover:text-foreground hover:bg-foreground/[0.03]'
                                         }`}
                                 >
-                                    <item.icone size={17} className={ativo ? 'text-brand-500 dark:text-brand-400' : ''} />
-                                    {item.label}
                                     {ativo && (
-                                        <ChevronRight size={14} className="ml-auto opacity-50" />
+                                        <motion.div
+                                            layoutId="active-pill"
+                                            className="absolute left-0 w-1 h-5 bg-brand-500 rounded-r-full"
+                                        />
                                     )}
+                                    <item.icone size={18} className={`${ativo ? 'text-brand-500 dark:text-brand-400' : 'opacity-50'} transition-colors`} />
+                                    {item.label}
                                 </motion.div>
                             </Link>
                         );
@@ -117,28 +128,30 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                 </nav>
 
                 {/* Perfil + Theme + Logout */}
-                <div className="p-4 border-t border-border space-y-4">
-                    <div className="flex items-center gap-3 px-3">
-                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center text-xs font-bold text-white flex-shrink-0">
-                            {iniciais}
+                <div className="p-5 border-t border-border/50 bg-foreground/[0.01]">
+                    <div className="flex items-center gap-3 px-3 mb-5">
+                        <div className="relative group">
+                            <div className="absolute -inset-0.5 bg-gradient-to-br from-brand-500 to-brand-700 rounded-full blur-sm opacity-20 group-hover:opacity-40 transition-opacity" />
+                            <div className="relative w-9 h-9 rounded-full bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center text-[10px] font-bold text-white flex-shrink-0 shadow-lg">
+                                {iniciais}
+                            </div>
                         </div>
                         <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium truncate">{sessao?.nome}</p>
-                            <p className="text-xs text-muted truncate">{sessao?.email}</p>
+                            <p className="text-xs font-bold text-foreground truncate uppercase tracking-tighter">{sessao?.nome}</p>
+                            <p className="text-[10px] text-muted truncate font-medium opacity-60">Matrícula Protege</p>
                         </div>
                     </div>
 
-                    <div className="px-3">
+                    <div className="space-y-1">
                         <ThemeToggle />
+                        <button
+                            onClick={handleLogout}
+                            className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-bold text-muted hover:text-red-500 hover:bg-red-500/5 transition-all duration-300"
+                        >
+                            <LogOut size={14} />
+                            ENCERRAR SESSÃO
+                        </button>
                     </div>
-
-                    <button
-                        onClick={handleLogout}
-                        className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-sm text-muted hover:text-red-500 hover:bg-red-500/5 transition-all duration-200"
-                    >
-                        <LogOut size={15} />
-                        Sair da plataforma
-                    </button>
                 </div>
             </motion.aside>
 
@@ -207,9 +220,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             </AnimatePresence>
 
             {/* ---- CONTEÚDO PRINCIPAL ---- */}
-            <main className="flex-1 flex flex-col md:max-h-screen md:overflow-y-auto">
+            <main className="flex-1 flex flex-col md:max-h-screen md:overflow-y-auto bg-background">
                 {/* Topbar desktop */}
-                <div className="hidden md:flex items-center justify-between px-8 h-16 border-b border-border sticky top-0 bg-background/80 backdrop-blur-xl z-30">
+                <div className="hidden md:flex items-center justify-between px-10 h-16 border-b border-border/50 sticky top-0 bg-background/60 backdrop-blur-xl z-30">
                     <div className="flex items-center gap-2">
                         {navItems.find(n => n.href === pathname) && (
                             <>

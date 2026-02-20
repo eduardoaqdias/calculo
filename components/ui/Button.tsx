@@ -21,21 +21,21 @@ interface ButtonProps extends Omit<HTMLMotionProps<'button'>, 'children'> {
 
 const estilos: Record<Variant, string> = {
     primary: `
-    bg-brand-500 hover:bg-brand-600 text-white border border-brand-500
-    hover:border-brand-600 shadow-lg shadow-brand-500/20
-    hover:shadow-brand-500/40 dark:shadow-brand-500/10
+    bg-brand-500 hover:bg-brand-600 text-white border border-brand-500/20
+    shadow-xl shadow-brand-500/10 hover:shadow-brand-500/30 dark:shadow-brand-500/5
+    shadow-inner-glow
   `,
     secondary: `
-    bg-foreground/5 hover:bg-foreground/10 text-foreground border border-border
-    hover:border-foreground/20
+    bg-foreground/[0.03] hover:bg-foreground/[0.06] text-foreground border border-border/80
+    hover:border-foreground/10 shadow-sm
   `,
     ghost: `
-    bg-transparent hover:bg-foreground/5 text-muted hover:text-foreground
-    border border-transparent hover:border-border
+    bg-transparent hover:bg-foreground/[0.04] text-muted hover:text-foreground
+    border border-transparent hover:border-border/50
   `,
     danger: `
-    bg-red-500/10 hover:bg-red-500/20 text-red-600 dark:text-red-400 
-    border border-red-500/20 hover:border-red-500/40
+    bg-red-500/5 hover:bg-red-500/10 text-red-600 dark:text-red-400 
+    border border-red-500/10 hover:border-red-500/30
   `,
 };
 
