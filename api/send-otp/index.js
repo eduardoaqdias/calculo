@@ -38,7 +38,7 @@ const tentativas = new Map(); // email -> { count, resetAt }
 
 /** Valida domínio corporativo */
 function dominioValido(email) {
-  return /^[a-zA-Z0-9._%+\-]+@protege\.com\.br$/i.test((email || '').trim());
+  return /^[a-zA-Z0-9._%+\-\.]+@protege\.com\.br$/i.test((email || '').trim());
 }
 
 /** Gera OTP numérico de 6 dígitos */

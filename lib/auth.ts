@@ -25,7 +25,7 @@ export interface SessaoUsuario {
 export function validarDominioCorporativo(email: string): boolean {
     if (!email || typeof email !== 'string') return false;
     const emailLimpo = email.trim().toLowerCase();
-    const regex = /^[a-zA-Z0-9._%+\-]+@protege\.com\.br$/i;
+    const regex = /^[a-zA-Z0-9._%+\-\.]+@protege\.com\.br$/i;
     return regex.test(emailLimpo);
 }
 

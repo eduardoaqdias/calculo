@@ -23,18 +23,18 @@ const estilos: Record<Variant, string> = {
     primary: `
     bg-brand-500 hover:bg-brand-600 text-white border border-brand-500
     hover:border-brand-600 shadow-lg shadow-brand-500/20
-    hover:shadow-brand-500/40
+    hover:shadow-brand-500/40 dark:shadow-brand-500/10
   `,
     secondary: `
-    bg-white/5 hover:bg-white/10 text-white border border-white/10
-    hover:border-white/20
+    bg-foreground/5 hover:bg-foreground/10 text-foreground border border-border
+    hover:border-foreground/20
   `,
     ghost: `
-    bg-transparent hover:bg-white/5 text-slate-300 hover:text-white
-    border border-transparent hover:border-white/10
+    bg-transparent hover:bg-foreground/5 text-muted hover:text-foreground
+    border border-transparent hover:border-border
   `,
     danger: `
-    bg-red-500/10 hover:bg-red-500/20 text-red-400 hover:text-red-300
+    bg-red-500/10 hover:bg-red-500/20 text-red-600 dark:text-red-400 
     border border-red-500/20 hover:border-red-500/40
   `,
 };

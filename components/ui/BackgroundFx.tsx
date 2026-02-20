@@ -53,41 +53,41 @@ export default function BackgroundFx() {
 
     return (
         <div className="fixed inset-0 pointer-events-none overflow-hidden" aria-hidden>
-            {/* Gradiente de fundo base — Protege dark navy */}
-            <div className="absolute inset-0 bg-[#02121f]" />
+            {/* Gradiente de fundo base */}
+            <div className="absolute inset-0 bg-background transition-colors duration-500" />
 
             {/* Vinheta de profundidade */}
             <div
                 className="absolute inset-0"
                 style={{
                     background:
-                        'radial-gradient(ellipse 80% 80% at 50% 50%, transparent 40%, rgba(2,18,31,0.85) 100%)',
+                        'radial-gradient(ellipse 80% 80% at 50% 50%, transparent 40%, var(--background) 100%)',
                 }}
             />
 
             {/* ── Orb principal que segue o mouse ── */}
             <div
                 ref={orbRef}
-                className="absolute top-0 left-0 will-change-transform"
+                className="absolute top-0 left-0 will-change-transform opacity-[0.3] dark:opacity-100"
                 style={{
                     width: 600,
                     height: 600,
                     borderRadius: '50%',
                     background:
-                        'radial-gradient(circle, rgba(4,49,84,0.65) 0%, rgba(4,49,84,0.2) 45%, transparent 70%)',
+                        'radial-gradient(circle, var(--accent) 0%, transparent 70%)',
                     filter: 'blur(40px)',
                 }}
             />
 
-            {/* Reflexo dourado que segue com leve delay (decorativo) */}
+            {/* Reflexo dourado */}
             <motion.div
-                className="absolute"
+                className="absolute opacity-20 dark:opacity-40"
                 style={{
                     width: 400,
                     height: 400,
                     borderRadius: '50%',
                     background:
-                        'radial-gradient(circle, rgba(149,121,60,0.18) 0%, rgba(149,121,60,0.05) 50%, transparent 70%)',
+                        'radial-gradient(circle, #95793c 0%, transparent 70%)',
                     filter: 'blur(60px)',
                     top: '60%',
                     left: '70%',
@@ -101,29 +101,12 @@ export default function BackgroundFx() {
                 transition={{ duration: 12, repeat: Infinity, ease: 'easeInOut' }}
             />
 
-            {/* Orb fixo azul inferior esquerdo */}
-            <motion.div
-                className="absolute"
-                style={{
-                    width: 500,
-                    height: 500,
-                    borderRadius: '50%',
-                    background:
-                        'radial-gradient(circle, rgba(4,49,84,0.35) 0%, transparent 70%)',
-                    filter: 'blur(80px)',
-                    bottom: '-10%',
-                    left: '-5%',
-                }}
-                animate={{ scale: [1, 1.15, 1], opacity: [0.6, 0.9, 0.6] }}
-                transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
-            />
-
             {/* ── Grid de pontos sutil ── */}
             <div
-                className="absolute inset-0 opacity-[0.035]"
+                className="absolute inset-0 opacity-[0.05] dark:opacity-[0.035]"
                 style={{
                     backgroundImage:
-                        'radial-gradient(circle, rgba(149,121,60,0.9) 1px, transparent 1px)',
+                        'radial-gradient(circle, var(--muted) 1px, transparent 1px)',
                     backgroundSize: '40px 40px',
                 }}
             />
@@ -155,21 +138,12 @@ export default function BackgroundFx() {
                 />
             ))}
 
-            {/* ── Linha decorativa de gradiente no topo ── */}
+            {/* ── Linhas decorativas ── */}
             <div
-                className="absolute top-0 left-0 right-0 h-px"
+                className="absolute top-0 left-0 right-0 h-px opacity-20 dark:opacity-50"
                 style={{
                     background:
-                        'linear-gradient(90deg, transparent, rgba(149,121,60,0.5), rgba(4,49,84,0.8), rgba(149,121,60,0.5), transparent)',
-                }}
-            />
-
-            {/* ── Linha decorativa de gradiente na base ── */}
-            <div
-                className="absolute bottom-0 left-0 right-0 h-px"
-                style={{
-                    background:
-                        'linear-gradient(90deg, transparent, rgba(4,49,84,0.5), transparent)',
+                        'linear-gradient(90deg, transparent, var(--accent), transparent)',
                 }}
             />
         </div>

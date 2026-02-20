@@ -28,7 +28,7 @@ const AnimatedInput = forwardRef<HTMLInputElement, AnimatedInputProps>(
             ? 'border-red-500/60 focus-within:border-red-500'
             : sucesso
                 ? 'border-green-500/60 focus-within:border-green-500'
-                : 'border-white/10 focus-within:border-brand-500/70';
+                : 'border-border focus-within:border-brand-500/70';
 
         const glowColor = erro
             ? 'focus-within:shadow-red-500/10'
@@ -41,7 +41,7 @@ const AnimatedInput = forwardRef<HTMLInputElement, AnimatedInputProps>(
                 {/* Container do input */}
                 <div
                     className={clsx(
-                        'relative rounded-xl border bg-white/[0.04] transition-all duration-300',
+                        'relative rounded-xl border bg-foreground/4 transition-all duration-300',
                         'focus-within:shadow-lg',
                         borderColor,
                         glowColor,
@@ -55,10 +55,10 @@ const AnimatedInput = forwardRef<HTMLInputElement, AnimatedInputProps>(
                             translateY: labelAtivo ? '0%' : '-50%',
                             fontSize: labelAtivo ? '11px' : '14px',
                             color: focado
-                                ? erro ? '#ef4444' : '#2874ef'
+                                ? erro ? '#ef4444' : '#2d76a3'
                                 : erro
                                     ? '#ef4444'
-                                    : '#94a3b8',
+                                    : 'var(--muted)',
                         }}
                         transition={{ duration: 0.2, ease: 'easeOut' }}
                         className="absolute left-4 pointer-events-none font-medium z-10 leading-none"
@@ -74,7 +74,7 @@ const AnimatedInput = forwardRef<HTMLInputElement, AnimatedInputProps>(
                         onFocus={() => setFocado(true)}
                         onBlur={() => setFocado(false)}
                         className={clsx(
-                            'w-full bg-transparent text-white text-sm font-medium',
+                            'w-full bg-transparent text-foreground text-sm font-medium',
                             'pt-6 pb-2 rounded-xl outline-none transition-all duration-200',
                             icone || erro || sucesso ? 'pl-4 pr-12' : 'px-4',
                         )}
@@ -88,7 +88,7 @@ const AnimatedInput = forwardRef<HTMLInputElement, AnimatedInputProps>(
                         ) : sucesso ? (
                             <CheckCircle2 size={18} className="text-green-400" />
                         ) : icone ? (
-                            <span className="text-slate-500">{icone}</span>
+                            <span className="text-muted">{icone}</span>
                         ) : null}
                     </div>
                 </div>
