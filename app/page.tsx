@@ -83,6 +83,7 @@ export default function Page() {
 
   // form
   const [cliente, setCliente] = useState("");
+  const [emailDestino, setEmailDestino] = useState("");
   const [volume, setVolume] = useState<number>(25);
   const [cidade, setCidade] = useState("");
   const [base, setBase] = useState("");
@@ -284,8 +285,25 @@ Observações:
     }
   }
 
+  function onSendEmail() {
+    if (!calc?.texto) {
+      showToast("Nada para enviar. Complete as seleções.", "warn");
+      return;
+    }
+
+    const to = emailDestino.trim();
+    const subjectBase = cliente?.trim() ? `Orçamento CPE - ${cliente.trim()}` : "Orçamento CPE";
+    const subject = encodeURIComponent(subjectBase);
+    const body = encodeURIComponent(calc.texto);
+    const href = `mailto:${encodeURIComponent(to)}?subject=${subject}&body=${body}`;
+
+    window.location.href = href;
+    showToast("Abrindo e-mail no aplicativo padrão.", "ok");
+  }
+
   function onReset() {
     setCliente("");
+    setEmailDestino("");
     setVolume(0);
     setCidade("");
     setBase("");
@@ -391,6 +409,18 @@ Observações:
                     autoComplete="off"
                   />
                   <div className="hint">Opcional — aparece no texto final.</div>
+                </div>
+
+                <div className="field">
+                  <label>E-mail destino</label>
+                  <input
+                    type="email"
+                    value={emailDestino}
+                    onChange={(e) => setEmailDestino(e.target.value)}
+                    placeholder="destinatario@empresa.com.br"
+                    autoComplete="off"
+                  />
+                  <div className="hint">Opcional. Se vazio, abre novo e-mail sem destinatário.</div>
                 </div>
 
                 <div className="field">
@@ -559,6 +589,7 @@ Observações:
                   <button className="primary" onClick={onCopy}>
                     Copiar orçamento
                   </button>
+                  <button onClick={onSendEmail}>Enviar por e-mail</button>
                   <button onClick={onExample}>Carregar exemplo</button>
                   <button className="danger" onClick={onReset}>
                     Reset
