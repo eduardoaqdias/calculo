@@ -30,91 +30,63 @@ module.exports = async function (context, req) {
     const headers = {
         'Content-Type': 'application/json',
         'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'POST, OPTIONS',
+        'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
         'Access-Control-Allow-Headers': 'Content-Type',
     };
 
-    // Preflight CORS
     if (req.method === 'OPTIONS') {
         context.res = { status: 204, headers, body: '' };
+        return;
+    }
+
+    if (req.method === 'GET') {
+        context.res = { status: 200, headers, body: JSON.stringify({ mensagem: 'API verify-otp online.' }) };
         return;
     }
 
     try {
         const { email, otp, token } = req.body || {};
 
-        // Validação de campos obrigatórios
         if (!email || !otp || !token) {
-            context.res = {
-                status: 400, headers,
-                body: JSON.stringify({ sucesso: false, erro: 'Campos obrigatórios ausentes.' }),
-            };
+            context.res = { status: 400, headers, body: JSON.stringify({ sucesso: false, erro: 'Campos ausentes.' }) };
             return;
         }
 
-        // Sanitização básica
         const emailLimpo = String(email).trim().toLowerCase();
         const otpLimpo = String(otp).trim().replace(/\D/g, '');
         const tokenLimpo = String(token).trim();
 
-        // Valida OTP (deve ser 6 dígitos)
         if (otpLimpo.length !== 6) {
-            context.res = {
-                status: 400, headers,
-                body: JSON.stringify({ sucesso: false, erro: 'Código inválido. Digite os 6 dígitos.' }),
-            };
+            context.res = { status: 400, headers, body: JSON.stringify({ sucesso: false, erro: 'Código inválido.' }) };
             return;
         }
 
-        // Verifica e decodifica o JWT
         const segredo = process.env.OTP_JWT_SECRET || 'protege-otp-secret-inseguro-dev';
         let payload;
         try {
             payload = jwt.verify(tokenLimpo, segredo);
         } catch (jwtErr) {
-            // Token expirado ou inválido
-            const mensagem = jwtErr.name === 'TokenExpiredError'
-                ? 'Código expirado. Solicite um novo código.'
-                : 'Token inválido. Solicite um novo código.';
-            context.res = {
-                status: 401, headers,
-                body: JSON.stringify({ sucesso: false, erro: mensagem }),
-            };
+            const msg = jwtErr.name === 'TokenExpiredError' ? 'Código expirado.' : 'Token inválido.';
+            context.res = { status: 401, headers, body: JSON.stringify({ sucesso: false, erro: msg }) };
             return;
         }
 
-        // Verifica se o e-mail do token bate com o e-mail informado
         if (!compararSeguro(payload.email, emailLimpo)) {
-            context.res = {
-                status: 403, headers,
-                body: JSON.stringify({ sucesso: false, erro: 'Token não corresponde ao e-mail informado.' }),
-            };
+            context.res = { status: 403, headers, body: JSON.stringify({ sucesso: false, erro: 'E-mail divergente.' }) };
             return;
         }
 
-        // Verifica o OTP com timing-safe comparison
         if (!compararSeguro(payload.otp, otpLimpo)) {
-            context.log.warn(`[verify-otp] OTP incorreto para ${emailLimpo.replace(/(.{2}).*(@.*)/, '$1***$2')}`);
-            context.res = {
-                status: 401, headers,
-                body: JSON.stringify({ sucesso: false, erro: 'Código incorreto. Verifique e tente novamente.' }),
-            };
+            context.log(`[AUTH FAIL] ${emailLimpo}`);
+            context.res = { status: 401, headers, body: JSON.stringify({ sucesso: false, erro: 'Código incorreto.' }) };
             return;
         }
 
-        // 🎉 OTP válido!
-        context.log(`[2FA] Verificação bem-sucedida para ${emailLimpo.replace(/(.{2}).*(@.*)/, '$1***$2')}`);
-
-        context.res = {
-            status: 200, headers,
-            body: JSON.stringify({ sucesso: true }),
-        };
+        context.log(`[AUTH OK] ${emailLimpo}`);
+        context.res = { status: 200, headers, body: JSON.stringify({ sucesso: true }) };
 
     } catch (err) {
-        context.log.error('[verify-otp] Erro:', err.message);
-        context.res = {
-            status: 500, headers,
-            body: JSON.stringify({ sucesso: false, erro: 'Erro interno. Tente novamente.' }),
-        };
+        context.log(`[FATAL] verify-otp: ${err.message}`);
+        context.res = { status: 500, headers, body: JSON.stringify({ sucesso: false, erro: 'Erro interno.' }) };
     }
 };

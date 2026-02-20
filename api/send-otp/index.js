@@ -241,11 +241,10 @@ function templateEmail(nome, otp) {
 
 // ─── Handler principal ────────────────────────────────────────────────────────
 module.exports = async function (context, req) {
-  // Headers CORS para o front-end Next.js
   const headers = {
     'Content-Type': 'application/json',
     'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
     'Access-Control-Allow-Headers': 'Content-Type',
   };
 
@@ -255,11 +254,19 @@ module.exports = async function (context, req) {
     return;
   }
 
+  // Teste de vida (GET /api/send-otp)
+  if (req.method === 'GET') {
+    context.res = {
+      status: 200, headers,
+      body: JSON.stringify({ mensagem: 'API send-otp está online e pronta.' }),
+    };
+    return;
+  }
+
   try {
     const { email } = req.body || {};
 
-    // Validação de entrada
-    if (!email || typeof email !== 'string') {
+    if (!email) {
       context.res = {
         status: 400, headers,
         body: JSON.stringify({ sucesso: false, erro: 'E-mail é obrigatório.' }),
@@ -267,74 +274,47 @@ module.exports = async function (context, req) {
       return;
     }
 
-    const emailLimpo = email.trim().toLowerCase();
+    const emailLimpo = String(email).trim().toLowerCase();
 
-    // Validação de domínio (server-side obrigatório)
     if (!dominioValido(emailLimpo)) {
       context.res = {
         status: 403, headers,
-        body: JSON.stringify({
-          sucesso: false,
-          erro: 'Acesso restrito a usuários corporativos da Protege.',
-        }),
+        body: JSON.stringify({ sucesso: false, erro: 'Acesso restrito a usuários Protege.' }),
       };
       return;
     }
 
-    // Rate limiting
     const rl = verificarRateLimit(emailLimpo);
     if (rl.bloqueado) {
-      context.res = {
-        status: 429, headers,
-        body: JSON.stringify({ sucesso: false, erro: rl.mensagem }),
-      };
+      context.res = { status: 429, headers, body: JSON.stringify({ sucesso: false, erro: rl.mensagem }) };
       return;
     }
 
-    // Gera OTP e assina o token JWT
     const otp = gerarOtp();
     const token = assinarToken(emailLimpo, otp);
 
-    // Extrai nome a partir do e-mail (parte local)
     const nomeLocal = emailLimpo.split('@')[0] ?? '';
-    const nome = nomeLocal.split('.').map(p =>
-      p.charAt(0).toUpperCase() + p.slice(1)
-    ).join(' ');
+    const nome = nomeLocal.split('.').map(p => p.charAt(0).toUpperCase() + p.slice(1)).join(' ');
 
-    // ──────────────────────────────────────────────
-    // 🚧 MODO DEMO — envio de e-mail desabilitado
-    // Para habilitar: remova este bloco e
-    // descomente o bloco "Envia e-mail" abaixo
-    // ──────────────────────────────────────────────
-    context.log(`[2FA DEMO] OTP para ${emailLimpo.replace(/(.{2}).*(@.*)/, '$1***$2')}: ${otp}`);
-    context.log(`[2FA DEMO] Token JWT: ${token.slice(0, 20)}...`);
+    // MODO DEMO — LOG NO CONSOLE DO AZURE / TERMINAL SWA
+    context.log(`[2FA DEMO] EMAIL: ${emailLimpo} | OTP: ${otp}`);
 
     /*
-    // ── Habilitar para produção: ──────────────────
+    // Para produção:
     const transporter = criarTransporter();
-    await transporter.sendMail({
-      from: `"Protege Plataforma" <${process.env.SMTP_USER}>`,
-      to: emailLimpo,
-      subject: '🔐 Seu código de verificação — Protege',
-      html: templateEmail(nome, otp),
-      text: `Olá, ${nome}!\n\nSeu código de verificação é: ${otp}\n\nEste código expira em 5 minutos.\n\n— Protege Plataforma`,
-    });
-    // ─────────────────────────────────────────────
+    await transporter.sendMail({ ... });
     */
 
     context.res = {
       status: 200, headers,
-      body: JSON.stringify({ sucesso: true, token }),
+      body: JSON.stringify({ sucesso: true, token, debug: 'OTP enviado ao log' }),
     };
 
   } catch (err) {
-    context.log.error('[send-otp] Erro:', err.message);
+    context.log(`[ERROR] send-otp: ${err.message}`);
     context.res = {
       status: 500, headers,
-      body: JSON.stringify({
-        sucesso: false,
-        erro: 'Falha ao enviar o código. Tente novamente.',
-      }),
+      body: JSON.stringify({ sucesso: false, erro: 'Erro interno na API.' }),
     };
   }
 };
