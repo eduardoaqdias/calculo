@@ -297,22 +297,21 @@ module.exports = async function (context, req) {
     // MODO DEMO — LOG NO CONSOLE DO AZURE / TERMINAL SWA
     context.log(`[2FA DEMO] EMAIL: ${emailLimpo} | OTP: ${otp}`);
 
-    /*
-    // Para produção:
-    const transporter = criarTransporter();
-    await transporter.sendMail({ ... });
-    */
-
     context.res = {
       status: 200, headers,
-      body: JSON.stringify({ sucesso: true, token, debug: 'OTP enviado ao log' }),
+      body: JSON.stringify({
+        sucesso: true,
+        token,
+        otp, // Incluído para exibição em modo demo conforme solicitado
+        debug: 'OTP enviado ao log e resposta'
+      }),
     };
 
   } catch (err) {
     context.log(`[ERROR] send-otp: ${err.message}`);
     context.res = {
       status: 500, headers,
-      body: JSON.stringify({ sucesso: false, erro: 'Erro interno na API.' }),
+      body: JSON.stringify({ sucesso: false, erro: 'Erro interno na API.', detalhes: err.message }),
     };
   }
 };
