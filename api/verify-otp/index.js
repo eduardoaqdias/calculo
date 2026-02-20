@@ -1,22 +1,7 @@
-/**
- * Azure Function: verify-otp
- * POST /api/verify-otp
- *
- * Recebe: { email: string, otp: string, token: string }
- * Verifica: assinatura JWT + OTP dentro do token + expiração
- * Retorna: { sucesso: true } ou { sucesso: false, erro: "..." }
- *
- * Fluxo stateless — sem banco de dados necessário.
- * O OTP está assinado criptograficamente no token JWT.
- */
+const crypto = require('node:crypto');
 
-const crypto = require('crypto');
-
-function base64url(str) {
-    return Buffer.from(str).toString('base64')
-        .replace(/=/g, '')
-        .replace(/\+/g, '-')
-        .replace(/\//g, '_');
+function base64url(buf) {
+    return buf.toString('base64').replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
 }
 
 function base64urlDecode(str) {
@@ -25,108 +10,47 @@ function base64urlDecode(str) {
     return Buffer.from(str, 'base64').toString('utf8');
 }
 
-function verificarToken(token, segredo) {
-    const parts = token.split('.');
-    if (parts.length !== 3) {
-        const err = new Error('Formato inválido.');
-        err.name = 'JsonWebTokenError';
-        throw err;
-    }
-
-    const [h, p, sig] = parts;
-    const expectedSig = base64url(crypto.createHmac('sha256', segredo).update(`${h}.${p}`).digest());
-
-    if (sig !== expectedSig) {
-        const err = new Error('Assinatura inválida.');
-        err.name = 'JsonWebTokenError';
-        throw err;
-    }
-
-    const payload = JSON.parse(base64urlDecode(p));
-    if (payload.exp && Math.floor(Date.now() / 1000) > payload.exp) {
-        const err = new Error('Experirado.');
-        err.name = 'TokenExpiredError';
-        throw err;
-    }
-
-    return payload;
-}
-
-// ─── Helpers ─────────────────────────────────────────────────────────────────
-
-/** Compara strings de forma timing-safe para evitar timing attacks */
-function compararSeguro(a, b) {
-    if (typeof a !== 'string' || typeof b !== 'string') return false;
-    if (a.length !== b.length) return false;
-    let resultado = 0;
-    for (let i = 0; i < a.length; i++) {
-        resultado |= a.charCodeAt(i) ^ b.charCodeAt(i);
-    }
-    return resultado === 0;
-}
-
-// ─── Handler principal ────────────────────────────────────────────────────────
 module.exports = async function (context, req) {
-    const headers = {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type',
-    };
-
-    if (req.method === 'OPTIONS') {
-        context.res = { status: 204, headers, body: '' };
-        return;
-    }
+    const headers = { 'Content-Type': 'application/json' };
 
     if (req.method === 'GET') {
-        context.res = { status: 200, headers, body: JSON.stringify({ mensagem: 'API verify-otp online.' }) };
+        context.res = { status: 200, headers, body: { status: 'online' } };
         return;
     }
 
     try {
         const { email, otp, token } = req.body || {};
-
         if (!email || !otp || !token) {
-            context.res = { status: 400, headers, body: JSON.stringify({ sucesso: false, erro: 'Campos ausentes.' }) };
+            context.res = { status: 400, headers, body: { sucesso: false, erro: 'Incompleto' } };
             return;
         }
 
-        const emailLimpo = String(email).trim().toLowerCase();
-        const otpLimpo = String(otp).trim().replace(/\D/g, '');
-        const tokenLimpo = String(token).trim();
+        const parts = token.split('.');
+        if (parts.length !== 3) throw new Error('JWT malformatado');
 
-        if (otpLimpo.length !== 6) {
-            context.res = { status: 400, headers, body: JSON.stringify({ sucesso: false, erro: 'Código inválido.' }) };
+        const secret = process.env.OTP_JWT_SECRET || 'protege-secret-dev';
+        const expectedSig = base64url(crypto.createHmac('sha256', secret).update(`${parts[0]}.${parts[1]}`).digest());
+
+        if (parts[2] !== expectedSig) {
+            context.res = { status: 401, headers, body: { sucesso: false, erro: 'Assinatura invalida' } };
             return;
         }
 
-        const segredo = process.env.OTP_JWT_SECRET || 'protege-otp-secret-inseguro-dev';
-        let payload;
-        try {
-            payload = verificarToken(tokenLimpo, segredo);
-        } catch (jwtErr) {
-            const msg = jwtErr.name === 'TokenExpiredError' ? 'Código expirado.' : 'Token inválido.';
-            context.res = { status: 401, headers, body: JSON.stringify({ sucesso: false, erro: msg }) };
+        const payload = JSON.parse(base64urlDecode(parts[1]));
+        if (payload.exp && Math.floor(Date.now() / 1000) > payload.exp) {
+            context.res = { status: 401, headers, body: { sucesso: false, erro: 'Token expirado' } };
             return;
         }
 
-        if (!compararSeguro(payload.email, emailLimpo)) {
-            context.res = { status: 403, headers, body: JSON.stringify({ sucesso: false, erro: 'E-mail divergente.' }) };
+        if (payload.email !== email.toLowerCase().trim() || payload.otp !== String(otp).trim()) {
+            context.res = { status: 401, headers, body: { sucesso: false, erro: 'Dados invalidos' } };
             return;
         }
 
-        if (!compararSeguro(payload.otp, otpLimpo)) {
-            context.log(`[AUTH FAIL] ${emailLimpo}`);
-            context.res = { status: 401, headers, body: JSON.stringify({ sucesso: false, erro: 'Código incorreto.' }) };
-            return;
-        }
-
-        context.log(`[AUTH OK] ${emailLimpo}`);
-        context.res = { status: 200, headers, body: JSON.stringify({ sucesso: true }) };
+        context.res = { status: 200, headers, body: { sucesso: true } };
 
     } catch (err) {
-        context.log(`[FATAL] verify-otp: ${err.message}`);
-        context.res = { status: 500, headers, body: JSON.stringify({ sucesso: false, erro: 'Erro interno.' }) };
+        context.log(`[VERIFY ERROR] ${err.message}`);
+        context.res = { status: 500, headers, body: { sucesso: false, erro: 'Erro interno', details: err.message } };
     }
 };
