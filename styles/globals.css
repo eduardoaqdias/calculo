@@ -126,13 +126,17 @@ body {
 .logoImg {
   height: 40px;
   width: auto;
+  transition: filter 0.3s ease;
+}
+
+.dark .logoImg {
   filter: brightness(0) invert(1);
 }
 
 .top h1 {
   font-size: 1.25rem;
   font-weight: 700;
-  color: #fff;
+  color: var(--foreground);
   letter-spacing: -0.01em;
 }
 
@@ -153,8 +157,8 @@ body {
   align-items: center;
   gap: 6px;
   font-size: 0.75rem;
-  color: var(--text-2);
-  background: rgba(255, 255, 255, 0.06);
+  color: var(--muted);
+  background: var(--foreground)/5;
   border: 1px solid var(--border);
   border-radius: 9999px;
   padding: 4px 10px;
@@ -182,10 +186,15 @@ body {
 }
 
 .card {
-  background: var(--surface);
+  background: var(--card);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   overflow: hidden;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+}
+
+.dark .card {
+  box-shadow: none;
 }
 
 .cardHeader {
@@ -200,14 +209,14 @@ body {
 .cardTitle {
   font-size: 0.875rem;
   font-weight: 600;
-  color: #fff;
+  color: var(--foreground);
   letter-spacing: 0.01em;
   text-transform: uppercase;
 }
 
 .cardDesc {
   font-size: 0.76rem;
-  color: var(--text-2);
+  color: var(--muted);
   margin-top: 3px;
   line-height: 1.4;
 }
@@ -258,7 +267,7 @@ body {
 .field label {
   font-size: 0.75rem;
   font-weight: 500;
-  color: var(--text-2);
+  color: var(--muted);
   letter-spacing: 0.02em;
   text-transform: uppercase;
 }
@@ -320,14 +329,14 @@ body {
   font-size: 0.84rem !important;
   font-weight: 400 !important;
   text-transform: none !important;
-  color: var(--text) !important;
+  color: var(--foreground) !important;
   letter-spacing: 0 !important;
 }
 
 .toggleRow input[type="checkbox"] {
   width: 16px;
   height: 16px;
-  accent-color: var(--protege-blue-1);
+  accent-color: var(--accent);
   border-radius: 4px;
 }
 
@@ -414,12 +423,12 @@ button.danger:hover {
 .kpi .v {
   font-size: 1.1rem;
   font-weight: 700;
-  color: #fff;
+  color: var(--foreground);
   font-family: 'JetBrains Mono', monospace;
 }
 
 .kpiTotal .v {
-  color: var(--protege-blue-1);
+  color: var(--accent);
   font-size: 1.3rem;
 }
 
@@ -452,18 +461,22 @@ button.danger:hover {
   display: flex;
   align-items: center;
   gap: 10px;
-  background: var(--surface);
+  background: var(--card);
   border: 1px solid var(--border);
   border-radius: 10px;
   padding: 10px 16px;
   font-size: 0.84rem;
-  color: var(--text);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  color: var(--foreground);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
   z-index: 9999;
   transform: translateY(20px);
   opacity: 0;
   pointer-events: none;
   transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s;
+}
+
+.dark .toast {
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
 }
 
 .toast.show {
