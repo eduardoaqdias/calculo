@@ -5,9 +5,5 @@
     "main": "index.js",
     "engines": {
         "node": ">=18"
-    },
-    "dependencies": {
-        "nodemailer": "^6.9.14",
-        "jsonwebtoken": "^9.0.2"
     }
 }
