@@ -1,9 +1,0 @@
-{
-    "name": "protege-api",
-    "version": "1.0.0",
-    "description": "Azure Functions — API de autenticação 2FA Protege",
-    "main": "index.js",
-    "engines": {
-        "node": ">=18"
-    }
-}

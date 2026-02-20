@@ -1,4 +1,4 @@
-const crypto = require('node:crypto');
+const crypto = require('crypto');
 
 function base64url(buf) {
     return buf.toString('base64').replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
