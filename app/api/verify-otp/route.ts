@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import crypto from 'crypto';
+import crypto from 'node:crypto';
 
 function base64url(str: string | Buffer) {
     const buf = typeof str === 'string' ? Buffer.from(str) : str;
@@ -24,12 +24,20 @@ function verificarToken(token: string, segredo: string) {
     }
 
     const [h, p, sig] = parts;
-    const expectedSig = base64url(crypto.createHmac('sha256', segredo).update(`${h}.${p}`).digest());
 
-    if (sig !== expectedSig) {
-        const err = new Error('Assinatura inválida.');
-        err.name = 'JsonWebTokenError';
-        throw err;
+    try {
+        const hmac = crypto.createHmac('sha256', segredo);
+        const expectedSig = base64url(hmac.update(`${h}.${p}`).digest());
+
+        if (sig !== expectedSig) {
+            const err = new Error('Assinatura inválida.');
+            err.name = 'JsonWebTokenError';
+            throw err;
+        }
+    } catch (e: any) {
+        if (e.name === 'JsonWebTokenError') throw e;
+        console.error('[JWT] Erro na verificação:', e.message);
+        throw new Error('Falha técnica na verificação');
     }
 
     const payload = JSON.parse(base64urlDecode(p));
@@ -90,7 +98,11 @@ export async function POST(req: Request) {
         return NextResponse.json({ sucesso: true });
 
     } catch (err: any) {
-        console.error(`[FATAL] verify-otp: ${err.message}`);
-        return NextResponse.json({ sucesso: false, erro: 'Erro interno.' }, { status: 500 });
+        console.error(`[FATAL] verify-otp: ${err?.message || 'Erro inesperado'}`);
+        return NextResponse.json({
+            sucesso: false,
+            erro: 'Erro interno no processamento.',
+            detalhes: process.env.NODE_ENV === 'development' ? err.message : undefined
+        }, { status: 500 });
     }
 }

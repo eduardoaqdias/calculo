@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import crypto from 'crypto';
+import crypto from 'node:crypto';
 
 function base64url(str: string | Buffer) {
     const buf = typeof str === 'string' ? Buffer.from(str) : str;
@@ -57,8 +57,15 @@ function assinarToken(email: string, otp: string) {
 
     const h = base64url(JSON.stringify(header));
     const p = base64url(JSON.stringify(payload));
-    const sig = base64url(crypto.createHmac('sha256', segredo).update(`${h}.${p}`).digest());
-    return `${h}.${p}.${sig}`;
+
+    try {
+        const hmac = crypto.createHmac('sha256', segredo);
+        const sig = base64url(hmac.update(`${h}.${p}`).digest());
+        return `${h}.${p}.${sig}`;
+    } catch (e: any) {
+        console.error('[JWT] Erro ao assinar:', e.message);
+        throw new Error('Falha na assinatura do token');
+    }
 }
 
 export async function POST(req: Request) {
@@ -85,15 +92,19 @@ export async function POST(req: Request) {
 
         console.log(`[2FA DEMO] EMAIL: ${emailLimpo} | OTP: ${otp}`);
 
-        return NextResponse.json({ 
-            sucesso: true, 
-            token, 
+        return NextResponse.json({
+            sucesso: true,
+            token,
             otp, // Incluído para exibição em modo demo conforme solicitado
-            debug: 'OTP enviado para exibição em tela' 
+            debug: 'OTP enviado para exibição em tela'
         });
 
     } catch (err: any) {
-        console.error(`[ERROR] send-otp: ${err.message}`);
-        return NextResponse.json({ sucesso: false, erro: 'Erro interno na API.' }, { status: 500 });
+        console.error(`[ERROR] send-otp: ${err?.message || 'Erro desconhecido'}`);
+        return NextResponse.json({
+            sucesso: false,
+            erro: 'Erro interno na API.',
+            detalhes: process.env.NODE_ENV === 'development' ? err.message : undefined
+        }, { status: 500 });
     }
 }

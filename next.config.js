@@ -1,13 +1,11 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Mantém exportação estática para Azure Static Web Apps
-  output: 'export',
-  // Desativa otimização de imagens (incompatível com static export)
+  // Muda para standalone para permitir API Routes e SSR em ambiente de produção (ex: Azure SWA Hybrid)
+  output: 'standalone',
+  // Desativa otimização de imagens (necessário para alguns ambientes serverless sem sharp)
   images: {
     unoptimized: true,
   },
-  // Trailing slash para compatibilidade com Azure
-  trailingSlash: true,
 };
 
 module.exports = nextConfig;
