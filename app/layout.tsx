@@ -1,14 +1,15 @@
-import "../styles/globals.css";
+import type { Metadata } from 'next';
+import '../styles/globals.css';
 
-export const metadata = {
-  title: "Simulador de Cobrança (CPE) • Protege",
-  description: "Simulador CPE - Protege",
+export const metadata: Metadata = {
+  title: 'Plataforma Corporativa — Protege',
+  description: 'Plataforma interna de gestão e simulação Protege',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="pt-BR">
-      <body>{children}</body>
+      <body className="antialiased">{children}</body>
     </html>
   );
 }
