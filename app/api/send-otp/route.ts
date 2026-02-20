@@ -1,8 +1,9 @@
 import { NextResponse } from 'next/server';
 import crypto from 'crypto';
 
-function base64url(str: string) {
-    return Buffer.from(str).toString('base64')
+function base64url(str: string | Buffer) {
+    const buf = typeof str === 'string' ? Buffer.from(str) : str;
+    return buf.toString('base64')
         .replace(/=/g, '')
         .replace(/\+/g, '-')
         .replace(/\//g, '_');
