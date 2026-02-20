@@ -10,7 +10,47 @@
  * O OTP está assinado criptograficamente no token JWT.
  */
 
-const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
+
+function base64url(str) {
+    return Buffer.from(str).toString('base64')
+        .replace(/=/g, '')
+        .replace(/\+/g, '-')
+        .replace(/\//g, '_');
+}
+
+function base64urlDecode(str) {
+    str = str.replace(/-/g, '+').replace(/_/g, '/');
+    while (str.length % 4) str += '=';
+    return Buffer.from(str, 'base64').toString('utf8');
+}
+
+function verificarToken(token, segredo) {
+    const parts = token.split('.');
+    if (parts.length !== 3) {
+        const err = new Error('Formato inválido.');
+        err.name = 'JsonWebTokenError';
+        throw err;
+    }
+
+    const [h, p, sig] = parts;
+    const expectedSig = base64url(crypto.createHmac('sha256', segredo).update(`${h}.${p}`).digest());
+
+    if (sig !== expectedSig) {
+        const err = new Error('Assinatura inválida.');
+        err.name = 'JsonWebTokenError';
+        throw err;
+    }
+
+    const payload = JSON.parse(base64urlDecode(p));
+    if (payload.exp && Math.floor(Date.now() / 1000) > payload.exp) {
+        const err = new Error('Experirado.');
+        err.name = 'TokenExpiredError';
+        throw err;
+    }
+
+    return payload;
+}
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -64,7 +104,7 @@ module.exports = async function (context, req) {
         const segredo = process.env.OTP_JWT_SECRET || 'protege-otp-secret-inseguro-dev';
         let payload;
         try {
-            payload = jwt.verify(tokenLimpo, segredo);
+            payload = verificarToken(tokenLimpo, segredo);
         } catch (jwtErr) {
             const msg = jwtErr.name === 'TokenExpiredError' ? 'Código expirado.' : 'Token inválido.';
             context.res = { status: 401, headers, body: JSON.stringify({ sucesso: false, erro: msg }) };
