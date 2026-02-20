@@ -14,10 +14,8 @@ import BackgroundFx from '@/components/ui/BackgroundFx';
 import OtpInput from '@/components/ui/OtpInput';
 import Button from '@/components/ui/Button';
 import Toast from '@/components/ui/Toast';
+import OtpShowcase from '@/components/ui/OtpShowcase';
 import {
-    verificarOtp,
-    gerarOtp,
-    armazenarOtp,
     criarSessao,
     mascararEmail,
 } from '@/lib/auth';
@@ -35,6 +33,7 @@ export default function VerificarPage() {
     const [erroOtp, setErroOtp] = useState(false);
     const [tempoRestante, setTempoRestante] = useState(TEMPO_OTP_SEG);
     const [tempoReenvio, setTempoReenvio] = useState(0);
+    const [otpDemo, setOtpDemo] = useState('');
     const [toast, setToast] = useState({ visivel: false, mensagem: '', tipo: 'erro' as 'sucesso' | 'erro' | 'aviso' });
 
     // Carrega e-mail da sessão 2FA
@@ -45,6 +44,10 @@ export default function VerificarPage() {
             return;
         }
         setEmail(emailSalvo);
+
+        // Recupera OTP inicial para exibição
+        const initialOtp = sessionStorage.getItem('protege_2fa_otp_demo');
+        if (initialOtp) setOtpDemo(initialOtp);
     }, [router]);
 
     // Countdown do OTP
@@ -160,16 +163,42 @@ export default function VerificarPage() {
     }, [email, otp, tempoRestante, router]);
 
 
-    function handleReenviar() {
-        if (tempoReenvio > 0) return;
-        const novoOtp = gerarOtp();
-        armazenarOtp(email, novoOtp);
-        console.info(`[Protege 2FA] Novo OTP para ${email}: ${novoOtp}`);
-        setOtp(Array(6).fill(''));
-        setErroOtp(false);
-        setTempoRestante(TEMPO_OTP_SEG);
-        setTempoReenvio(TEMPO_REENVIO_SEG);
-        exibirToast('Novo código enviado para seu e-mail.', 'aviso');
+    async function handleReenviar() {
+        if (tempoReenvio > 0 || carregando) return;
+
+        setCarregando(true);
+        try {
+            const resposta = await fetch('/api/send-otp', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email }),
+            });
+
+            const dados = await resposta.json();
+
+            if (!resposta.ok || !dados.sucesso) {
+                exibirToast(dados.erro || 'Falha ao reenviar código.', 'erro');
+                setCarregando(false);
+                return;
+            }
+
+            // Atualiza token e OTP (demo)
+            sessionStorage.setItem('protege_2fa_token', dados.token);
+            if (dados.otp) {
+                sessionStorage.setItem('protege_2fa_otp_demo', dados.otp);
+                setOtpDemo(dados.otp);
+            }
+
+            setOtp(Array(6).fill(''));
+            setErroOtp(false);
+            setTempoRestante(TEMPO_OTP_SEG);
+            setTempoReenvio(TEMPO_REENVIO_SEG);
+            exibirToast('Novo código enviado com sucesso.', 'sucesso');
+        } catch {
+            exibirToast('Erro ao conectar com o servidor.', 'erro');
+        } finally {
+            setCarregando(false);
+        }
     }
 
     const porcentagemTempo = (tempoRestante / TEMPO_OTP_SEG) * 100;
@@ -371,22 +400,26 @@ export default function VerificarPage() {
                                     </button>
                                 </motion.div>
 
-                                {/* Dica do console em dev */}
+                                {/* Dica elegante para modo demo */}
                                 <motion.div
                                     initial={{ opacity: 0 }}
                                     animate={{ opacity: 1 }}
                                     transition={{ delay: 0.6 }}
-                                    className="mt-6 rounded-xl bg-amber-500/5 border border-amber-500/10 px-4 py-3"
+                                    className="mt-6 flex items-center justify-center gap-2"
                                 >
-                                    <p className="text-xs text-amber-600/70 text-center font-mono">
-                                        <span className="text-amber-500/80">Modo demo:</span> verifique o Console do navegador (F12) para ver o código OTP
+                                    <div className="w-1 h-1 rounded-full bg-brand-500/40" />
+                                    <p className="text-[10px] text-slate-500 uppercase tracking-widest font-medium">
+                                        Ambiente de Demonstração
                                     </p>
+                                    <div className="w-1 h-1 rounded-full bg-brand-500/40" />
                                 </motion.div>
                             </>
                         )}
                     </div>
                 </div>
             </motion.div>
+
+            <OtpShowcase otp={otpDemo} show={!sucesso && !!otpDemo} />
 
             <Toast
                 visivel={toast.visivel}

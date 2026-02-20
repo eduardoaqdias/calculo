@@ -114,6 +114,9 @@ export default function LoginPage() {
             // Armazena e-mail e token JWT para a tela de verificação
             sessionStorage.setItem('protege_2fa_email', email.trim().toLowerCase());
             sessionStorage.setItem('protege_2fa_token', dados.token);
+            if (dados.otp) {
+                sessionStorage.setItem('protege_2fa_otp_demo', dados.otp);
+            }
 
             setCarregando(false);
             router.push('/verificar');

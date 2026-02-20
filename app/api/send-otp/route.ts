@@ -85,7 +85,12 @@ export async function POST(req: Request) {
 
         console.log(`[2FA DEMO] EMAIL: ${emailLimpo} | OTP: ${otp}`);
 
-        return NextResponse.json({ sucesso: true, token, debug: 'OTP enviado ao log' });
+        return NextResponse.json({ 
+            sucesso: true, 
+            token, 
+            otp, // Incluído para exibição em modo demo conforme solicitado
+            debug: 'OTP enviado para exibição em tela' 
+        });
 
     } catch (err: any) {
         console.error(`[ERROR] send-otp: ${err.message}`);
