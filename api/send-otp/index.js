@@ -12,6 +12,11 @@ module.exports = async function (context, req) {
     return;
   }
 
+  if (req.method === 'OPTIONS') {
+    context.res = { status: 204, headers, body: '' };
+    return;
+  }
+
   try {
     const { email } = req.body || {};
     if (!email) {

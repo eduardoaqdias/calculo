@@ -18,6 +18,11 @@ module.exports = async function (context, req) {
         return;
     }
 
+    if (req.method === 'OPTIONS') {
+        context.res = { status: 204, headers, body: '' };
+        return;
+    }
+
     try {
         const { email, otp, token } = req.body || {};
         if (!email || !otp || !token) {
@@ -26,7 +31,10 @@ module.exports = async function (context, req) {
         }
 
         const parts = token.split('.');
-        if (parts.length !== 3) throw new Error('JWT malformatado');
+        if (parts.length !== 3) {
+            context.res = { status: 401, headers, body: { sucesso: false, erro: 'JWT malformatado' } };
+            return;
+        }
 
         const secret = process.env.OTP_JWT_SECRET || 'protege-secret-dev';
         const expectedSig = base64url(crypto.createHmac('sha256', secret).update(`${parts[0]}.${parts[1]}`).digest());
