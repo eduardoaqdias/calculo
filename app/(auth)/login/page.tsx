@@ -2,15 +2,14 @@
 
 /**
  * Tela de Login Corporativo — Protege
- * Valida e-mail @protege.com.br + senha 1234 (modo estático / teste)
- * Framer Motion para animações premium
+ * 1ª etapa: valida credenciais (domínio + senha)
+ * 2ª etapa: chama Azure Function /api/send-otp → envia e-mail OTP
  */
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { Mail, Lock, ArrowRight, Shield, Eye, EyeOff } from 'lucide-react';
-import Image from 'next/image';
 
 import BackgroundFx from '@/components/ui/BackgroundFx';
 import AnimatedInput from '@/components/ui/AnimatedInput';
@@ -19,8 +18,6 @@ import Toast from '@/components/ui/Toast';
 import {
     validarDominioCorporativo,
     validarCredenciais,
-    gerarOtp,
-    armazenarOtp,
 } from '@/lib/auth';
 
 // Variantes de animação (staggered)
@@ -73,7 +70,7 @@ export default function LoginPage() {
     async function handleSubmit(e: React.FormEvent) {
         e.preventDefault();
 
-        // Validações
+        // Validações client-side (UX rápida)
         let valido = true;
         if (!email) {
             setErroEmail('Informe seu e-mail corporativo.');
@@ -88,30 +85,44 @@ export default function LoginPage() {
         }
         if (!valido) return;
 
-        setCarregando(true);
-
-        // Simula delay de rede
-        await new Promise(r => setTimeout(r, 1200));
-
+        // Verifica credenciais locais (domínio + senha)
         if (!validarCredenciais(email, senha)) {
-            setCarregando(false);
             setErroSenha('Credenciais inválidas. Verifique e tente novamente.');
             exibirToast('Acesso negado. Credenciais inválidas.', 'erro');
             return;
         }
 
-        // Gera e armazena OTP
-        const otp = gerarOtp();
-        armazenarOtp(email, otp);
+        setCarregando(true);
 
-        // Em dev/estático: exibe o OTP em console (sem SMTP)
-        console.info(`[Protege 2FA] OTP para ${email}: ${otp}`);
+        try {
+            // Chama Azure Function para gerar OTP e enviar e-mail
+            const resposta = await fetch('/api/send-otp', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: email.trim().toLowerCase() }),
+            });
 
-        setCarregando(false);
+            const dados = await resposta.json();
 
-        // Redireciona para tela 2FA passando e-mail via sessionStorage
-        sessionStorage.setItem('protege_2fa_email', email);
-        router.push('/verificar');
+            if (!resposta.ok || !dados.sucesso) {
+                // Erro retornado pela função (ex: rate limit, domínio inválido)
+                exibirToast(dados.erro || 'Falha ao enviar o código. Tente novamente.', 'erro');
+                setCarregando(false);
+                return;
+            }
+
+            // Armazena e-mail e token JWT para a tela de verificação
+            sessionStorage.setItem('protege_2fa_email', email.trim().toLowerCase());
+            sessionStorage.setItem('protege_2fa_token', dados.token);
+
+            setCarregando(false);
+            router.push('/verificar');
+
+        } catch {
+            // Erro de rede (Azure Function indisponível)
+            exibirToast('Erro de conexão. Verifique sua rede e tente novamente.', 'erro');
+            setCarregando(false);
+        }
     }
 
     const emailValido = email && !erroEmail && validarDominioCorporativo(email);
@@ -235,14 +246,12 @@ export default function LoginPage() {
                             </motion.div>
                         </motion.form>
 
-                        {/* Dica de credenciais de teste */}
+                        {/* Dica de credenciais */}
                         <motion.div variants={itemVariants} className="mt-6">
                             <div className="rounded-xl bg-white/[0.03] border border-white/6 px-4 py-3 text-center">
-                                <p className="text-xs text-slate-500 font-mono">
-                                    <span className="text-slate-400">Demo:</span>{' '}
-                                    qualquer <span className="text-brand-400">@protege.com.br</span>
-                                    {' '}·{' '}
-                                    senha <span className="text-brand-400">1234</span>
+                                <p className="text-xs text-slate-500">
+                                    Utilize seu <span className="text-brand-400 font-medium">e-mail corporativo</span> e senha de acesso.
+                                    Um código será enviado ao seu e-mail.
                                 </p>
                             </div>
                         </motion.div>

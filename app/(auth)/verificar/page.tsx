@@ -108,30 +108,57 @@ export default function VerificarPage() {
         setCarregando(true);
         setErroOtp(false);
 
-        // Simula delay de verificação
-        await new Promise(r => setTimeout(r, 900));
-
-        const resultado = verificarOtp(email, codigoFinal);
-
-        if (!resultado.valido) {
+        // Recupera o token JWT gerado no login
+        const token = sessionStorage.getItem('protege_2fa_token');
+        if (!token) {
+            exibirToast('Sessão inválida. Faça login novamente.', 'erro');
             setCarregando(false);
-            setErroOtp(true);
-            setOtp(Array(6).fill(''));
-            exibirToast(resultado.erro ?? 'Código inválido.', 'erro');
+            router.replace('/login');
             return;
         }
 
-        // Sucesso!
-        criarSessao(email);
-        setSucesso(true);
-        setCarregando(false);
-        sessionStorage.removeItem('protege_2fa_email');
+        try {
+            // Chama a Azure Function verify-otp
+            const resposta = await fetch('/api/verify-otp', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, otp: codigoFinal, token }),
+            });
 
-        // Redireciona para dashboard após animação de sucesso
-        setTimeout(() => {
-            router.push('/dashboard');
-        }, 1500);
+            const dados = await resposta.json();
+
+            if (!resposta.ok || !dados.sucesso) {
+                setCarregando(false);
+                setErroOtp(true);
+                setOtp(Array(6).fill(''));
+                exibirToast(dados.erro ?? 'Código inválido.', 'erro');
+
+                // Se o token expirou, força re-login
+                if (resposta.status === 401 && dados.erro?.includes('expirado')) {
+                    setTimeout(() => router.replace('/login'), 2500);
+                }
+                return;
+            }
+
+            // ✅ Verificação bem-sucedida
+            criarSessao(email);
+            setSucesso(true);
+            setCarregando(false);
+            sessionStorage.removeItem('protege_2fa_email');
+            sessionStorage.removeItem('protege_2fa_token');
+
+            // Redireciona para dashboard após animação de sucesso
+            setTimeout(() => {
+                router.push('/dashboard');
+            }, 1500);
+
+        } catch {
+            // Erro de rede
+            setCarregando(false);
+            exibirToast('Erro de conexão. Verifique sua rede e tente novamente.', 'erro');
+        }
     }, [email, otp, tempoRestante, router]);
+
 
     function handleReenviar() {
         if (tempoReenvio > 0) return;
@@ -333,8 +360,8 @@ export default function VerificarPage() {
                                         onClick={handleReenviar}
                                         disabled={tempoReenvio > 0}
                                         className={`inline-flex items-center gap-1.5 text-sm transition-all ${tempoReenvio > 0
-                                                ? 'text-slate-600 cursor-not-allowed'
-                                                : 'text-brand-400 hover:text-brand-300'
+                                            ? 'text-slate-600 cursor-not-allowed'
+                                            : 'text-brand-400 hover:text-brand-300'
                                             }`}
                                     >
                                         <RefreshCcw size={13} className={tempoReenvio > 0 ? '' : 'group-hover:rotate-180 transition-transform'} />

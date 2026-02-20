@@ -9,33 +9,47 @@ const config: Config = {
     theme: {
         extend: {
             colors: {
-                // Paleta corporativa Protege
+                // ── Paleta oficial Grupo Protege (extraída do logo SVG) ──
                 brand: {
-                    50: '#e8f0fd',
-                    100: '#c5d8fb',
-                    200: '#9dbff8',
-                    300: '#6ea2f4',
-                    400: '#4a8af2',
-                    500: '#2874ef',  // Azul Protege principal
-                    600: '#1a5ed4',
-                    700: '#0f47b0',
-                    800: '#0a3382',
-                    900: '#061f55',
-                    950: '#030f2a',
+                    50: '#e6eff5',
+                    100: '#c2d7e7',
+                    200: '#8fb6cf',
+                    300: '#5a93b7',
+                    400: '#2d76a3',
+                    500: '#043154',  // Azul marinho Protege (logo .cls-3)
+                    600: '#032b49',
+                    700: '#02203a',
+                    800: '#011529',
+                    900: '#010b18',
+                    950: '#000509',
+                },
+                // Dourado Protege (logo .cls-1)
+                gold: {
+                    50: '#fdf8ef',
+                    100: '#f9eed6',
+                    200: '#f3dbab',
+                    300: '#e8c37a',
+                    400: '#c9993f',   // hover / destaque
+                    500: '#95793c',  // Dourado Protege (logo .cls-1)
+                    600: '#7d5e28',
+                    700: '#624419',
+                    800: '#4a2e0e',
+                    900: '#321d06',
+                    950: '#1a0e02',
                 },
                 // Tons escuros para dark mode corporativo
                 dark: {
-                    50: '#f0f2f8',
-                    100: '#dde2f0',
-                    200: '#b8c3e0',
-                    300: '#8fa1cc',
-                    400: '#6a82b8',
-                    500: '#4f69a5',
-                    600: '#3d5188',
-                    700: '#2e3c65',
-                    800: '#1e2844',
-                    900: '#111827',
-                    950: '#080d1a',
+                    50: '#edf2f7',
+                    100: '#d4e0ed',
+                    200: '#a8c0db',
+                    300: '#7aa0c7',
+                    400: '#4e7fb0',
+                    500: '#2d6095',
+                    600: '#1e4a75',
+                    700: '#123459',
+                    800: '#0a2040',
+                    900: '#040e1e',
+                    950: '#02121f',   // Fundo base da plataforma
                 },
             },
             fontFamily: {
